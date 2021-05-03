@@ -24,7 +24,7 @@ The algorithm will require a combination of models to perform different tasks, w
 
 - Dog detection - Pre-trained [ResNet-50](http://ethereon.github.io/netscope/#/gist/db945b393d40bfa26006) model with weights that have been trained on [ImageNet](http://www.image-net.org/).
 
-- Dog breed classifier - 
+- Dog breed classifier -
 
 Input datasets can be found at:
 
@@ -36,9 +36,11 @@ Metrics - Metrics used to measure performance of a model or result are clearly d
 
 ## Installation <a name="installation"></a>
 
-In order to run the ETL and ML pipeline code you will need the standard libraries included within the Anaconda distribution of Python. The code should run with no issues using Python versions 3.*.
+In order to run the project code you will need the standard libraries included within the Anaconda distribution of Python. The code should run with no issues using Python versions 3.*.
 
-install opencv, keras, tensorflow
+The additional packages required to run the web application can be found in requirements.txt within the web_app directory. To install them, navigate to the web_app directory and simply run:
+
+`pip install -r requirements.txt`
 
 ## File Descriptions <a name="files"></a>
 
