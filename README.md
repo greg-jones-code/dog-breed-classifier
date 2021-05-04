@@ -192,13 +192,13 @@ In order to accurately detect human faces the RGB images from the human images i
 
 In order to utilise pre-trained Keras CNNs for the dog detection and breed classifier algorithms, the input format required is a 4D array or tensor with shape:
 
-(nb_samples, rows, columns, channels)
+`(nb_samples, rows, columns, channels)`
 
 where `nb_samples` corresponds to the total number of images, and `rows`, `columns`, and `channels` correspond to the number of rows, columns, and channels for each image, respectively. Using Keras' image preprocessing functionality the images from the dog images and ImageNet input datasets were resized to 224x224 pixels, converted to an array, and subsequently resized to a 4D tensor. Since the dog images datasets contain colour images, each image has three channels. Therefore, the returned tensor will always have shape:
 
-(1, 224, 224, 3)
+`(1, 224, 224, 3)`
 
-Lastly, the 4D tensors of the RGB images contained within the dog images and ImageNet input datasets were converted to BGR by reordering the channels in order to prepare them as input for the pre-trained Keras models. All pre-trained models have an additional normalisation step where the mean pixel (expressed in RGB as [103.939,116.779,123.68] and calculated from all pixels in all the images in the input dataset) must be subtracted from every pixel in each image. This was implemented using the imported function `preprocess_input` which is available [here](https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py).
+Lastly, the 4D tensors of the RGB images contained within the dog images and ImageNet input datasets were converted to BGR by reordering the channels in order to prepare them as input for the pre-trained Keras models. All pre-trained models have an additional normalisation step where the mean pixel (expressed in RGB as [103.939, 116.779, 123.68] and calculated from all pixels in all the images in the input dataset) must be subtracted from every pixel in each image. This was implemented using the imported function `preprocess_input` which is available [here](https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py).
 
 ### Implementation
 
@@ -208,11 +208,11 @@ A pre-trained [ResNet-50](http://ethereon.github.io/netscope/#/gist/db945b393d40
 
 A pre-trained [ResNet-50](http://ethereon.github.io/netscope/#/gist/db945b393d40bfa26006) model was created with transfer learning using bottleneck features and used to classify breeds from images of dogs. The custom function takes a string-valued file path to an image as input, converts the image to a 4D tensor, extracts the bottleneck features as input to the pre-trained Keras model. The model predictions are extracted using the `predict` method and the argmax of this prediction vector is used to return the index of the predicted dog breed. This is then converted to the breed name using the dog_names dictionary, which is returned as the output of the function.
 
-These three custom functions are implemented within the dog breed classifier algorithm which accepts a string-valued file path to an image as input and first determines whether the image contains a human, dog, or neither. Then,
+These three custom functions are implemented within the dog breed classifier algorithm which accepts a string-valued file path to an image as input and first determines whether the image contains a human, dog, or neither. Then:
 
-- if a dog is detected in the image, the algorithm returns the predicted breed.
-- if a human is detected in the image, the algorithm returns the resembling dog breed.
-- if neither is detected in the image, the algorithm returns an error message and tips to improve performance.
+- If a dog is detected in the image, the algorithm returns the predicted breed.
+- If a human is detected in the image, the algorithm returns the resembling dog breed.
+- If neither is detected in the image, the algorithm returns an error message and tips to improve performance.
 
 ## Results <a name="results"></a>
 
