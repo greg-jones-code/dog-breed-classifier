@@ -14,7 +14,7 @@
 
 ## Project Definition <a name="defintion"></a>
 
-### Project Overview
+### Project Overview and Problem Statement
 
 In this project, I develop a classification algorithm using CNNs capable of processing an image, identifying a canine or human face, and subsequently predicting either the dog's breed or the dog breed resembled by the human. I also develop a web application using Flask which utilises the dog classification algorithm to analyse an image uploaded by the user.
 
@@ -25,6 +25,10 @@ The algorithm will require a combination of models to perform different tasks, w
 - Dog detection - Pre-trained [ResNet-50](http://ethereon.github.io/netscope/#/gist/db945b393d40bfa26006) model with weights that have been trained on [ImageNet](http://www.image-net.org/).
 
 - Dog breed classifier - Pre-trained [ResNet-50](http://ethereon.github.io/netscope/#/gist/db945b393d40bfa26006) model.
+
+### Metrics
+
+Model accuracy is used to assess the performance of the models and overall algorithm. Given that the data sets are well balanced (each breed of dog has a similar number of photos within the training dataset) this metric is the most appropriate measure of performance for the characteristics of this problem.
 
 ### Project Instructions
 
@@ -172,9 +176,43 @@ To run the web application on a local machine and upload an image to be classifi
 
 An analysis of the datasets is provided within the project notebook.
 
+The dog images dataset used to develop the dog detector and breed classifier contains 8,351 images of 133 different breeds. This has been split into training, validation and testing sets at a ratio of 80:10:10. This dataset is well balanced, having a similar number of images for each breed.
+
+The human images dataset used to develop the human face detector model contains 13,233 colour images of humans with clearly presented faces.
+
 ## Methodology <a name="methodology"></a>
 
 See project notebook for more information on the methods used.
+
+### Data Preprocessing
+
+In order to accurately detect human faces the RGB images from the human images input dataset were converted to grayscale using the colour conversion function available within OpenCV:
+
+`cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)`
+
+In order to utilise pre-trained Keras CNNs for the dog detection and breed classifier algorithms, the input format required is a 4D array or tensor with shape:
+
+(nb_samples, rows, columns, channels)
+
+where `nb_samples` corresponds to the total number of images, and `rows`, `columns`, and `channels` correspond to the number of rows, columns, and channels for each image, respectively. Using Keras' image preprocessing functionality the images from the dog images and ImageNet input datasets were resized to 224x224 pixels, converted to an array, and subsequently resized to a 4D tensor. Since the dog images datasets contain colour images, each image has three channels. Therefore, the returned tensor will always have shape:
+
+(1, 224, 224, 3)
+
+Lastly, the 4D tensors of the RGB images contained within the dog images and ImageNet input datasets were converted to BGR by reordering the channels in order to prepare them as input for the pre-trained Keras models. All pre-trained models have an additional normalisation step where the mean pixel (expressed in RGB as [103.939,116.779,123.68] and calculated from all pixels in all the images in the input dataset) must be subtracted from every pixel in each image. This was implemented using the imported function `preprocess_input` which is available [here](https://github.com/fchollet/keras/blob/master/keras/applications/imagenet_utils.py).
+
+### Implementation
+
+A pre-trained face detector from OpenCV's implementation of [Haar feature-based cascade classifiers](http://docs.opencv.org/trunk/d7/d8b/tutorial_py_face_detection.html) was used to detect human faces in images. The custom function takes a string-valued file path to an image as input, converts the image from RGB to grayscale, and uses the `detectMultiScale` function to execute the pre-trained face detector. The function returns True if a human face is detected in an image and False otherwise.
+
+A pre-trained [ResNet-50](http://ethereon.github.io/netscope/#/gist/db945b393d40bfa26006) model with weights that have been trained on [ImageNet](http://www.image-net.org/) was used to detect dogs within images. The custom function takes a string-valued file path to an image as input, converts the image to a 4D tensor and reformats it for input into a pre-trained Keras model. The model predictions are extracted using the `predict` method, which returns an array whose i-th entry is the model's predicted probability that the image belongs to the i-th ImageNet category. By taking the argmax of the predicted probability vector, we obtain an integer corresponding to the model's predicted object class, which we can identify with an object category through the use of this [dictionary](https://gist.github.com/yrevar/942d3a0ac09ec9e5eb3a). Given that the categories corresponding to dogs appear in an uninterrupted sequence and correspond to dictionary keys 151-268, if the integer obtained is a value between 151 and 268 (inclusive), then the image is predicted to contain a dog and the function returns True (and False otherwise).
+
+A pre-trained [ResNet-50](http://ethereon.github.io/netscope/#/gist/db945b393d40bfa26006) model was created with transfer learning using bottleneck features and used to classify breeds from images of dogs. The custom function takes a string-valued file path to an image as input, converts the image to a 4D tensor, extracts the bottleneck features as input to the pre-trained Keras model. The model predictions are extracted using the `predict` method and the argmax of this prediction vector is used to return the index of the predicted dog breed. This is then converted to the breed name using the dog_names dictionary, which is returned as the output of the function.
+
+These three custom functions are implemented within the dog breed classifier algorithm which accepts a string-valued file path to an image as input and first determines whether the image contains a human, dog, or neither. Then,
+
+- if a dog is detected in the image, the algorithm returns the predicted breed.
+- if a human is detected in the image, the algorithm returns the resembling dog breed.
+- if neither is detected in the image, the algorithm returns an error message and tips to improve performance.
 
 ## Results <a name="results"></a>
 
